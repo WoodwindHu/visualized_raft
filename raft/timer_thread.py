@@ -12,7 +12,14 @@ from .AppendEntries import AppendEntries
 from .Follower import Follower
 from .Leader import Leader
 from .cluster import Cluster, ELECTION_TIMEOUT_MAX
+from .cluster import HEART_BEAT_INTERVAL, ELECTION_TIMEOUT_MAX
+import time
 
+from .monitor import send_state_update, send_heartbeat
+from .client import Client
+
+import grequests
+import json
 cluster = Cluster()
 
 
@@ -24,11 +31,43 @@ class TimerThread(threading.Thread):
         self.election_timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
         self.election_timer = threading.Timer(self.election_timeout, self.become_candidate)
 
+    def heartbeat(self):
+        while not self.node_state.stopped:
+            logging.info(f'{self} send heartbeat to followers')
+            logging.info('========================================================================')
+            send_heartbeat(self.node_state, HEART_BEAT_INTERVAL)
+            client = Client()
+            prev_log_term = self.node_state.entries[self.node_state.last_applied_index].term \
+                                if self.node_state.last_applied_index > 0 else 0
+            log_entry = AppendEntries(self.node_state.current_term,
+                                      self.node_state.node, self.node_state.last_applied_index,
+                                      prev_log_term, self.node_state.entry, self.node_state.commit_index)
+            with client as session:
+                posts = [
+                    grequests.post(f'http://{peer.uri}/raft/heartbeat',
+                                   json=json.dumps(log_entry, default=lambda obj: obj.__dict__,
+                                                   sort_keys=True, indent=4),
+                                   session=session)
+                    for peer in self.node_state.followers
+                ]
+                for response in grequests.map(posts, gtimeout=HEART_BEAT_INTERVAL):
+                    if response is not None:
+                        logging.info(f'{self.node_state} got heartbeat from follower: {response.json()}')
+                        r = response.json()
+                        success, term = r['success'], r['term']
+                        if term > self.node_state.current_term:
+                            self.become_follower()
+                    else:
+                        logging.info(f'{self} got heartbeat from follower: None')
+            logging.info('========================================================================')
+            time.sleep(HEART_BEAT_INTERVAL)
+            self.entry = None
+
     def become_leader(self):
         logging.info(f'{self} become leader and start to send heartbeat ... ')
         send_state_update(self.node_state, self.election_timeout)
         self.node_state = Leader(self.node_state)
-        self.node_state.heartbeat()
+        self.heartbeat()
 
     def become_candidate(self):
         logging.warning(f'heartbeat is timeout: {int(self.election_timeout)} s')
