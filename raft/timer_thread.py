@@ -67,6 +67,10 @@ class TimerThread(threading.Thread):
     def run(self):
         self.become_follower()
 
+    @property
+    def term(self):
+        return self.node_state.current_term
+
     def __repr__(self):
         return f'{type(self).__name__, self.node_state}'
 

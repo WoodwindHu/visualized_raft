@@ -11,9 +11,9 @@ class Follower(NodeState):
         self.commit_index = 0
         self.last_applied_index = 0
         # next log entry to be sent by leader
-        self.nextIndex = 0
+        # self.nextIndex = 0
         # index of highest log entry known to be replicated on server
-        self.matchIndex = 0
+        # self.matchIndex = 0
         self.entries = []
 
     def __repr__(self):

@@ -1,6 +1,7 @@
 import collections
 
 from .cluster import Cluster
+from .LogEntry import LogEntry
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
