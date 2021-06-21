@@ -99,6 +99,7 @@ class TimerThread(threading.Thread):
         # Reply false if term < currentTerm
         if append_entries.term < self.node_state.current_term:
             success = False
+            return success, self.node_state.current_term
         # Reply false if log doesn’t contain an entry at prevLogIndex
         # whose term matches prevLogTerm
         if append_entries.prev_log_index > 0 and self.node_state.entries[
