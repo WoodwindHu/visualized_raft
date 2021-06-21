@@ -1,0 +1,262 @@
+{% extends "common/base.html" %}<!--继承基础模板-->
+{% block content %}<!--自定义模板区域-->
+    <div class="container">
+        <div class="row" style="margin-top: 20px">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="border: 0px solid black" width="745"
+                 height="400">
+                <defs>
+                    <marker id="TriangleOutM" orient="auto" refX="0.0" refY="0.0" style="overflow:visible">
+                        <path d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z" transform="scale(0.4)"></path>
+                    </marker>
+                    <marker id="TriangleOutS-RequestVote" orient="auto" refX="0.0" refY="0.0" style="overflow:visible">
+                        <path d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z" transform="scale(0.3)"
+                              class="message RequestVote"></path>
+                    </marker>
+                    <marker id="TriangleOutS-AppendEntries" orient="auto" refX="0.0" refY="0.0"
+                            style="overflow:visible">
+                        <path d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z" transform="scale(0.3)"
+                              class="message AppendEntries"></path>
+                    </marker>
+                </defs>
+                <circle id="ring" cx="210" cy="210" r="150"></circle>
+                <g id="pause" class="resumed" transform="translate(210, 210) scale(42.857142857142854)">
+                    <rect width="1" height="3" x="-1.25" y="-1.5"></rect>
+                    <rect width="1" height="3" x=".25" y="-1.5"></rect>
+                </g>
+                <g id="messages"><a id="message-0" class="message reply AppendEntries" title="AppendEntries reply">
+                    <circle cx="275.22339546879095" cy="260.73697047296855" r="8"></circle>
+                    <path class="message-direction" style="" d="M 0,0"></path>
+                    <path class="message-success"
+                          d="M 267.22339546879095 , 260.73697047296855 L 283.22339546879095 , 260.73697047296855 M 275.22339546879095 , 252.73697047296855 L 275.22339546879095 , 268.73697047296855"></path>
+                </a><a id="message-1" class="message reply AppendEntries" title="AppendEntries reply">
+                    <circle cx="251.8320267230879" cy="297.68764813449576" r="8"></circle>
+                    <path class="message-direction" style="" d="M 0,0"></path>
+                    <path class="message-success"
+                          d="M 243.8320267230879 , 297.68764813449576 L 259.8320267230879 , 297.68764813449576 M 251.8320267230879 , 289.68764813449576 L 251.8320267230879 , 305.68764813449576"></path>
+                </a></g>
+                <g id="servers">
+                    <g id="server-1" class="server follower">
+                        <text class="serverid" x="209.99999999999997" y="10">S1</text>
+                        <a>
+                            <circle class="background" cx="209.99999999999997" cy="60" r="30"
+                                    style="fill: #8da0cb"></circle>
+                            <g class="votes"></g>
+                            <path style="stroke-width: 5"
+                                  d="M 209.99999999999997 , 27.5 A 32.5 , 32.5 0 0,1 209.99999999999997 92.5 M 209.99999999999997 , 92.5 A 32.5 , 32.5 0 0,1 187.15830269079348 83.11940449134858"></path>
+                            <text class="term" x="209.99999999999997" y="60">2</text>
+                        </a></g>
+                    <g id="server-2" class="server follower">
+                        <text class="serverid" x="400.21130325903073" y="148.1966011250105">S2</text>
+                        <a>
+                            <circle class="background" cx="352.658477444273" cy="163.64745084375787" r="30"
+                                    style="fill: #8da0cb"></circle>
+                            <g class="votes"></g>
+                            <path style="stroke-width: 5"
+                                  d="M 352.658477444273 , 131.14745084375787 A 32.5 , 32.5 0 0,1 352.658477444273 196.14745084375787 M 352.658477444273 , 196.14745084375787 A 32.5 , 32.5 0 0,1 322.40802768681135 175.52854041800518"></path>
+                            <text class="term" x="352.658477444273" y="163.64745084375787">2</text>
+                        </a></g>
+                    <g id="server-3" class="server leader">
+                        <text class="serverid" x="327.5570504584948" y="371.8033988749894">S3</text>
+                        <a>
+                            <circle class="background" cx="298.1677878438711" cy="331.35254915624205" r="30"
+                                    style="fill: #8da0cb"></circle>
+                            <g class="votes"></g>
+                            <path style="stroke-width: 5"
+                                  d="M 298.1677878438711 , 298.85254915624205 A 32.5 , 32.5 0 0,1 298.1677878438711 363.85254915624205 M 298.1677878438711 , 363.85254915624205 A 32.5 , 32.5 0 0,1 298.1677878438711 298.85254915624205"></path>
+                            <text class="term" x="298.1677878438711" y="331.35254915624205">2</text>
+                        </a></g>
+                    <g id="server-4" class="server follower">
+                        <text class="serverid" x="92.44294954150544" y="371.8033988749895">S4</text>
+                        <a>
+                            <circle class="background" cx="121.83221215612907" cy="331.35254915624216" r="30"
+                                    style="fill: #8da0cb"></circle>
+                            <g class="votes"></g>
+                            <path style="stroke-width: 5"
+                                  d="M 121.83221215612907 , 298.85254915624216 A 32.5 , 32.5 0 0,1 124.31802993536793 363.7573437084133"></path>
+                            <text class="term" x="121.83221215612907" y="331.35254915624216">2</text>
+                        </a></g>
+                    <g id="server-5" class="server follower">
+                        <text class="serverid" x="19.78869674096927" y="148.1966011250106">S5</text>
+                        <a>
+                            <circle class="background" cx="67.34152255572695" cy="163.64745084375795" r="30"
+                                    style="fill: #8da0cb"></circle>
+                            <g class="votes"></g>
+                            <path style="stroke-width: 5"
+                                  d="M 67.34152255572695 , 131.14745084375795 A 32.5 , 32.5 0 0,1 67.34152255572695 196.14745084375795 M 67.34152255572695 , 196.14745084375795 A 32.5 , 32.5 0 0,1 42.178104937490545 184.2156888278496"></path>
+                            <text class="term" x="67.34152255572695" y="163.64745084375795">2</text>
+                        </a></g>
+                </g>
+                <g class="logs">
+                    <rect id="logsbg" x="430" y="50" width="320" height="270"></rect>
+                    <g id="log-indexes">
+                        <text x="484.09090909090907" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">1
+                        </text>
+                        <text x="510.27272727272725" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">2
+                        </text>
+                        <text x="536.4545454545455" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">3
+                        </text>
+                        <text x="562.6363636363636" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">4
+                        </text>
+                        <text x="588.8181818181818" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">5
+                        </text>
+                        <text x="615" y="66.33333333333333" width="26.181818181818183" height="32.666666666666664">6
+                        </text>
+                        <text x="641.1818181818182" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">7
+                        </text>
+                        <text x="667.3636363636364" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">8
+                        </text>
+                        <text x="693.5454545454545" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">9
+                        </text>
+                        <text x="719.7272727272727" y="66.33333333333333" width="26.181818181818183"
+                              height="32.666666666666664">10
+                        </text>
+                    </g>
+                    <g id="log-S1">
+                        <text class="serverid follower" x="451" y="99.49999999999999">S1</text>
+                        <rect x="471" y="83.16666666666666" width="26.181818181818183" height="32.666666666666664"
+                              class="log"></rect>
+                        <rect x="497.1818181818182" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="523.3636363636364" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="549.5454545454545" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="575.7272727272727" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="601.9090909090909" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="628.0909090909091" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="654.2727272727273" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="680.4545454545455" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="706.6363636363636" y="83.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <circle title="match index" cx="471" cy="115.83333333333331" r="5"></circle>
+                        <path title="next index" style="marker-end:url(#TriangleOutM); stroke: black"
+                              d="M 484.09090909090907 , 126.7222222222222 L 484.09090909090907 , 121.27777777777776"
+                              stroke-width="3"></path>
+                    </g>
+                    <g id="log-S2">
+                        <text class="serverid follower" x="451" y="148.5">S2</text>
+                        <rect x="471" y="132.16666666666666" width="26.181818181818183" height="32.666666666666664"
+                              class="log"></rect>
+                        <rect x="497.1818181818182" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="523.3636363636364" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="549.5454545454545" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="575.7272727272727" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="601.9090909090909" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="628.0909090909091" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="654.2727272727273" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="680.4545454545455" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="706.6363636363636" y="132.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <circle title="match index" cx="471" cy="164.83333333333331" r="5"></circle>
+                        <path title="next index" style="marker-end:url(#TriangleOutM); stroke: black"
+                              d="M 484.09090909090907 , 175.7222222222222 L 484.09090909090907 , 170.27777777777777"
+                              stroke-width="3"></path>
+                    </g>
+                    <g id="log-S3">
+                        <text class="serverid leader" x="451" y="197.5">S3</text>
+                        <rect x="471" y="181.16666666666666" width="26.181818181818183" height="32.666666666666664"
+                              class="log"></rect>
+                        <rect x="497.1818181818182" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="523.3636363636364" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="549.5454545454545" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="575.7272727272727" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="601.9090909090909" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="628.0909090909091" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="654.2727272727273" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="680.4545454545455" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="706.6363636363636" y="181.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                    </g>
+                    <g id="log-S4">
+                        <text class="serverid follower" x="451" y="246.5">S4</text>
+                        <rect x="471" y="230.16666666666666" width="26.181818181818183" height="32.666666666666664"
+                              class="log"></rect>
+                        <rect x="497.1818181818182" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="523.3636363636364" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="549.5454545454545" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="575.7272727272727" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="601.9090909090909" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="628.0909090909091" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="654.2727272727273" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="680.4545454545455" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="706.6363636363636" y="230.16666666666666" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <circle title="match index" cx="471" cy="262.8333333333333" r="5"></circle>
+                        <path title="next index" style="marker-end:url(#TriangleOutM); stroke: black"
+                              d="M 484.09090909090907 , 273.72222222222223 L 484.09090909090907 , 268.27777777777777"
+                              stroke-width="3"></path>
+                    </g>
+                    <g id="log-S5">
+                        <text class="serverid follower" x="451" y="295.5">S5</text>
+                        <rect x="471" y="279.1666666666667" width="26.181818181818183" height="32.666666666666664"
+                              class="log"></rect>
+                        <rect x="497.1818181818182" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="523.3636363636364" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="549.5454545454545" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="575.7272727272727" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="601.9090909090909" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="628.0909090909091" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="654.2727272727273" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="680.4545454545455" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <rect x="706.6363636363636" y="279.1666666666667" width="26.181818181818183"
+                              height="32.666666666666664" class="log"></rect>
+                        <circle title="match index" cx="471" cy="311.83333333333337" r="5"></circle>
+                        <path title="next index" style="marker-end:url(#TriangleOutM); stroke: black"
+                              d="M 484.09090909090907 , 322.7222222222223 L 484.09090909090907 , 317.2777777777778"
+                              stroke-width="3"></path>
+                    </g>
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <div id="context-menu">
+        <ul class="dropdown-menu" role="menu">
+        </ul>
+    </div>
+{% endblock %}
