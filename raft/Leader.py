@@ -21,7 +21,6 @@ class Leader(NodeState):
         self.commit_index = candidate.commit_index
         self.last_applied_index = candidate.last_applied_index
         self.entries = candidate.entries
-        self.entry = None
         self.stopped = False
         self.followers = [peer for peer in self.cluster if peer != self.node]
         self.election_timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))

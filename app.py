@@ -11,6 +11,7 @@ from raft.cluster import Cluster
 from raft.timer_thread import TimerThread
 from raft.AppendEntries import AppendEntries
 from raft.LogEntry import LogEntry
+from raft.command import Command
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -33,6 +34,10 @@ def json2AppendEntries(s):
     return AppendEntries(s['term'], s['leader_id'], s['prev_log_index'], s['prev_log_term'], entries,
                          s['leader_commit'])
 
+def json2Command(s):
+    command = Command(s['command'], s['num'])
+    return command
+
 
 @app.route('/raft/vote', methods=['POST'])
 def request_vote():
@@ -47,8 +52,15 @@ def heartbeat():
     append_entries = json.loads(heartbeat_request)
     append_entries = json2AppendEntries(append_entries)
     success, term = timer_thread.append_entries_reponse(append_entries)
-    d = {"success": success, "term": term}
+    d = {"success": success, "term": term, "node": timer_thread.node.id}
     return jsonify(d)
+
+@app.route('/raft/receive_client_command', methods=['POST'])
+def receive_client_command():
+    command = request.get_json()
+    command = json2Command(command)
+    timer_thread.receive_client_command(command)
+    return
 
 
 @app.route('/')
