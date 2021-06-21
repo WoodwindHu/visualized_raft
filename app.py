@@ -43,32 +43,11 @@ def request_vote():
 
 @app.route('/raft/heartbeat', methods=['POST'])
 def heartbeat():
-    ae_json = request.get_json()
-    append_entries = json2AppendEntries(ae_json)
-    logging.info(f'{timer_thread} got heartbeat from leader: {append_entries.leader_id}')
-    success = True
-    # Reply false if term < currentTerm
-    if append_entries.term < timer_thread.node_state.current_term:
-        success = False
-    # Reply false if log doesn’t contain an entry at prevLogIndex
-    # whose term matches prevLogTerm
-    if append_entries.prev_log_index > 0 and timer_thread.node_state.entries[append_entries.prev_log_index].term != append_entries.prev_log_term:
-        success = False
-    if append_entries.entries != None:
-        # If an existing entry conflicts with a new one (same index
-        # but different terms), delete the existing entry and all that
-        # follow it
-        if append_entries.entries.index < len(timer_thread.node_state.entries) \
-                and append_entries.entries.term != timer_thread.node_state.entries[append_entries.entries.index].term:
-            timer_thread.node_state.entries = timer_thread.node_state.entries[:append_entries.entries.term]
-        # Append any new entries not already in the log
-        timer_thread.node_state.entries.append(append_entries.entries)
-    # If leaderCommit > commitIndex, set commitIndex =
-    # min(leaderCommit, index of last new entry)
-    if append_entries.leader_commit > timer_thread.node_state.commit_index:
-        timer_thread.node_state.commit_index = min(append_entries.leader_commit, append_entries.entries.index)
-    d = {"success": success, "term": timer_thread.node_state.current_term}
-    timer_thread.become_follower()
+    heartbeat_request = request.get_json()
+    append_entries = json.loads(heartbeat_request)
+    append_entries = json2AppendEntries(append_entries)
+    success, term = timer_thread.append_entries_reponse(append_entries)
+    d = {"success": success, "term": term}
     return jsonify(d)
 
 

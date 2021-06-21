@@ -8,6 +8,7 @@ from .monitor import send_state_update
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
 from .Candidate import Candidate, VoteRequest
+from .AppendEntries import AppendEntries
 from .Follower import Follower
 from .Leader import Leader
 from .cluster import Cluster, ELECTION_TIMEOUT_MAX
@@ -52,6 +53,34 @@ class TimerThread(threading.Thread):
             self.become_follower()
         logging.info(f'{self} return vote result: {vote_result} ')
         return vote_result
+
+    def append_entries_reponse(self, append_entries: AppendEntries):
+        logging.info(f'{self} got heartbeat from leader: {append_entries.leader_id}')
+        success = True
+        # Reply false if term < currentTerm
+        if append_entries.term < self.node_state.current_term:
+            success = False
+        # Reply false if log doesn’t contain an entry at prevLogIndex
+        # whose term matches prevLogTerm
+        if append_entries.prev_log_index > 0 and self.node_state.entries[
+            append_entries.prev_log_index].term != append_entries.prev_log_term:
+            success = False
+        if append_entries.entries != None:
+            # If an existing entry conflicts with a new one (same index
+            # but different terms), delete the existing entry and all that
+            # follow it
+            if append_entries.entries.index < len(self.node_state.entries) \
+                    and append_entries.entries.term != self.node_state.entries[
+                append_entries.entries.index].term:
+                self.node_state.entries = self.node_state.entries[:append_entries.entries.term]
+            # Append any new entries not already in the log
+            self.node_state.entries.append(append_entries.entries)
+        # If leaderCommit > commitIndex, set commitIndex =
+        # min(leaderCommit, index of last new entry)
+        if append_entries.leader_commit > self.node_state.commit_index:
+            self.node_state.commit_index = min(append_entries.leader_commit, append_entries.entries.index)
+        self.become_follower()
+        return success, self.node_state.current_term
 
     def become_follower(self):
         timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
