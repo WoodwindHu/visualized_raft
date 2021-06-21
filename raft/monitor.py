@@ -1,7 +1,7 @@
 import grequests
 from enum import Enum
-from raft.NodeState import NodeState
-from raft.client import Client
+from .NodeState import NodeState
+from .client import Client
 import logging
 
 MONITOR_URL_STATE_UPDATE = 'http://127.0.0.1:8000/monitor/state'

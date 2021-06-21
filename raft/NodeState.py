@@ -1,6 +1,6 @@
 import collections
 
-from raft.cluster import Cluster
+from .cluster import Cluster
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)

@@ -3,14 +3,14 @@ import threading
 from random import randrange
 import logging
 
-from raft.monitor import send_state_update
+from .monitor import send_state_update
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
-from raft.Candidate import Candidate, VoteRequest
-from raft.Follower import Follower
-from raft.Leader import Leader
-from raft.cluster import Cluster, ELECTION_TIMEOUT_MAX
+from .Candidate import Candidate, VoteRequest
+from .Follower import Follower
+from .Leader import Leader
+from .cluster import Cluster, ELECTION_TIMEOUT_MAX
 
 cluster = Cluster()
 

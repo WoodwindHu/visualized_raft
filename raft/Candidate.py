@@ -1,8 +1,8 @@
 import json
 
 import grequests
-from raft.NodeState import NodeState
-from raft.client import Client
+from .NodeState import NodeState
+from .client import Client
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)

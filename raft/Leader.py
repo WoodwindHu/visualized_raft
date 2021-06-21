@@ -7,7 +7,7 @@ from raft.client import Client
 from raft.cluster import HEART_BEAT_INTERVAL, ELECTION_TIMEOUT_MAX
 import logging
 
-from raft.monitor import send_state_update, send_heartbeat
+from .monitor import send_state_update, send_heartbeat
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
