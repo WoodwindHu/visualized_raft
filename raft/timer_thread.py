@@ -64,7 +64,7 @@ class TimerThread(threading.Thread):
                     # AppendEntries RPC with log entries starting at nextIndex
                     if self.node_state.last_applied_index >= self.node_state.next_index[peer.id]:
                         entry = self.node_state.entries[self.node_state.next_index[peer.id]]
-                    prev_log_index = self.node_state.match_index[peer.id]
+                    prev_log_index = self.node_state.next_index[peer.id] - 1
                     prev_log_term = self.node_state.entries[prev_log_index].term
                     log_entry = AppendEntries(self.node_state.current_term,
                                               self.node_state.node, prev_log_index,
@@ -157,12 +157,13 @@ class TimerThread(threading.Thread):
             # If an existing entry conflicts with a new one (same index
             # but different terms), delete the existing entry and all that
             # follow it
-            if append_entries.entries.index < len(self.node_state.entries) \
+            if append_entries.entries.index < self.node_state.last_applied_index \
                     and append_entries.entries.term != self.node_state.entries[
                 append_entries.entries.index].term:
-                self.node_state.entries = self.node_state.entries[:append_entries.entries.term]
+                self.node_state.entries[append_entries.entries.index:] = LogEntry(0,0,None)
+            self.node_state.last_applied_index = append_entries.entries.index
             # Append any new entries not already in the log
-            self.node_state.entries.append(append_entries.entries)
+            self.node_state.entries[append_entries.entries.index] = append_entries.entries
         # If leaderCommit > commitIndex, set commitIndex =
         # min(leaderCommit, index of last new entry)
         if append_entries.leader_commit > self.node_state.commit_index:

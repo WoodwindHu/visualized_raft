@@ -1,6 +1,7 @@
 from .NodeState import NodeState
 import logging
 from .LogEntry import LogEntry
+import numpy as np
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -15,7 +16,7 @@ class Follower(NodeState):
         # self.nextIndex = 0
         # index of highest log entry known to be replicated on server
         # self.matchIndex = 0
-        self.entries = [LogEntry(0,0,None) for i in range(101)]
+        self.entries = np.array([LogEntry(0,0,None) for i in range(101)])
 
     def __repr__(self):
         return f'{type(self).__name__, self.node.id, self.current_term}'
