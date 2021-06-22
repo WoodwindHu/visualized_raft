@@ -36,7 +36,7 @@ def json2AppendEntries(s):
                          s['leader_commit'])
 
 def json2Command(s):
-    command = Command(s['command'], s['num'])
+    command = Command(s[0], s[1])
     return command
 
 
@@ -59,9 +59,10 @@ def heartbeat():
 @app.route('/raft/receive_client_command', methods=['POST'])
 def receive_client_command():
     command = request.get_json()
-    command = json2Command(command)
-    timer_thread.receive_client_command(command)
-    return
+    command = json2Command(json.loads(command))
+    success = timer_thread.receive_client_command(command)
+    d = {'success':success}
+    return jsonify(d)
 
 
 @app.route('/')

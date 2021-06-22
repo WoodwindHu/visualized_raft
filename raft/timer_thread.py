@@ -12,8 +12,7 @@ from .AppendEntries import AppendEntries
 from .LogEntry import LogEntry
 from .Follower import Follower
 from .Leader import Leader
-from .cluster import Cluster, ELECTION_TIMEOUT_MAX
-from .cluster import HEART_BEAT_INTERVAL, ELECTION_TIMEOUT_MAX
+from .cluster import Cluster, ELECTION_TIMEOUT_MAX, HEART_BEAT_INTERVAL
 import time
 
 from .monitor import send_state_update, send_heartbeat
@@ -33,8 +32,10 @@ class TimerThread(threading.Thread):
         self.state = 0
         self.election_timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
         self.election_timer = threading.Timer(self.election_timeout, self.become_candidate)
+        self.heartbeat_timer = None
 
     def receive_client_command(self, command: Command):
+        logging.info(f'{self} got command: {json.dumps(command)}')
         if command.command != 'set' and command.command != 'add':
             return False
         self.node_state.last_applied_index += 1
@@ -42,6 +43,9 @@ class TimerThread(threading.Thread):
                                                 self.node_state.current_term, command)
         self.node_state.match_index[self.node.id] = self.node_state.last_applied_index
         self.node_state.next_index[self.node.id] = self.node_state.match_index[self.node.id] + 1
+        # self.heartbeat_timer.cancel()
+        # self.heartbeat_timer = threading.Timer(float(HEART_BEAT_INTERVAL), self.heartbeat)
+        # self.heartbeat_timer.start()
         return True
 
     def update_state(self, command: Command):
@@ -49,67 +53,72 @@ class TimerThread(threading.Thread):
             self.state = command.num
         elif command.command == 'add':
             self.state += command.num
+        logging.info(f'{self} update state: {self.state}')
 
     def heartbeat(self):
-        while not self.node_state.stopped:
-            logging.info(f'{self} send heartbeat to followers')
-            logging.info('========================================================================')
-            send_heartbeat(self.node_state, HEART_BEAT_INTERVAL)
-            client = Client()
-            with client as session:
-                posts = []
-                for i, peer in enumerate(self.node_state.followers):
-                    entry = None
-                    # If last log index ≥ nextIndex for a follower: send
-                    # AppendEntries RPC with log entries starting at nextIndex
-                    if self.node_state.last_applied_index >= self.node_state.next_index[peer.id]:
-                        entry = self.node_state.entries[self.node_state.next_index[peer.id]]
-                    prev_log_index = self.node_state.next_index[peer.id] - 1
-                    prev_log_term = self.node_state.entries[prev_log_index].term
-                    log_entry = AppendEntries(self.node_state.current_term,
-                                              self.node_state.node, prev_log_index,
-                                              prev_log_term, entry, self.node_state.commit_index)
-                    posts.append(grequests.post(f'http://{peer.uri}/raft/heartbeat',
-                                   json=json.dumps(log_entry, default=lambda obj: obj.__dict__,
-                                                   sort_keys=True, indent=4),
-                                   session=session))
+        logging.info(f'{self} send heartbeat to followers')
+        logging.info('========================================================================')
+        send_heartbeat(self.node_state, HEART_BEAT_INTERVAL)
+        client = Client()
+        with client as session:
+            posts = []
+            for i, peer in enumerate(self.node_state.followers):
+                entry = None
+                # If last log index ≥ nextIndex for a follower: send
+                # AppendEntries RPC with log entries starting at nextIndex
+                if self.node_state.last_applied_index >= self.node_state.next_index[peer.id]:
+                    entry = self.node_state.entries[self.node_state.next_index[peer.id]]
+                prev_log_index = self.node_state.next_index[peer.id] - 1
+                prev_log_term = self.node_state.entries[prev_log_index].term
+                log_entry = AppendEntries(self.node_state.current_term,
+                                          self.node_state.node, prev_log_index,
+                                          prev_log_term, entry, self.node_state.commit_index)
+                posts.append(grequests.post(f'http://{peer.uri}/raft/heartbeat',
+                               json=json.dumps(log_entry, default=lambda obj: obj.__dict__,
+                                               sort_keys=True, indent=4),
+                               session=session))
 
-                for response in grequests.map(posts, gtimeout=HEART_BEAT_INTERVAL):
-                    if response is not None:
-                        logging.info(f'{self.node_state} got heartbeat from follower: {response.json()}')
-                        r = response.json()
-                        success, term, node = r['success'], r['term'], r['node']
-                        if term > self.node_state.current_term:
-                            self.become_follower()
-                        if self.node_state.last_applied_index >= self.node_state.next_index[node]:
-                            # If successful: update nextIndex and matchIndex for
-                            # follower
-                            if success:
-                                self.node_state.match_index[id] = self.node_state.next_index[id]
-                                self.node_state.next_index[id] += 1
-                            # If AppendEntries fails because of log inconsistency:
-                            # decrement nextIndex and retry
-                            else:
-                                self.node_state.next_index[id] -= 1
-                    else:
-                        logging.info(f'{self} got heartbeat from follower: None')
+            for response in grequests.map(posts, gtimeout=HEART_BEAT_INTERVAL):
+                if response is not None:
+                    logging.info(f'{self.node_state} got heartbeat from follower: {response.json()}')
+                    r = response.json()
+                    success, term, node_id = r['success'], r['term'], r['node']
+                    if term > self.node_state.current_term:
+                        self.become_follower()
+                    if self.node_state.last_applied_index >= self.node_state.next_index[node_id]:
+                        # If successful: update nextIndex and matchIndex for
+                        # follower
+                        if success:
+                            self.node_state.match_index[node_id] = self.node_state.next_index[node_id]
+                            self.node_state.next_index[node_id] += 1
+                            logging.info(f'update next_index({node_id}) {self.node_state.next_index[node_id]}')
+                        # If AppendEntries fails because of log inconsistency:
+                        # decrement nextIndex and retry
+                        else:
+                            self.node_state.next_index[node_id] -= 1
+                            logging.info(f'update next_index({node_id}) {self.node_state.next_index[node_id]}')
+                else:
+                    logging.info(f'{self} got heartbeat from follower: None')
 
-                # If there exists an N such that N > commitIndex, a majority
-                # of matchIndex[i] ≥ N, and log[N].term == currentTerm:
-                # set commitIndex = N
-                while self.node_state.commit_index < self.node_state.last_applied_index \
-                    and self.node_state.entries[self.node_state.commit_index+1].term == self.node_state.current_term:
-                        count = 0
-                        for peer in self.node_state.cluster:
-                            count += 1 if self.node_state.match_index[peer.id] >= self.node_state.commit_index+1 \
-                                    else 0
-                        if count > len(self.node_state.cluster):
-                            self.node_state.commit_index += 1
-                            self.update_state(self.node_state.entries[self.node_state.commit_index].payload)
+        # If there exists an N such that N > commitIndex, a majority
+        # of matchIndex[i] ≥ N, and log[N].term == currentTerm:
+        # set commitIndex = N
+        while self.node_state.commit_index < self.node_state.last_applied_index \
+            and self.node_state.entries[self.node_state.commit_index+1].term == self.node_state.current_term:
+                count = 0
+                for peer in self.node_state.cluster:
+                    count += 1 if self.node_state.match_index[peer.id] >= self.node_state.commit_index+1 \
+                            else 0
+                if count > len(self.node_state.cluster)/2:
+                    self.node_state.commit_index += 1
+                    self.update_state(self.node_state.entries[self.node_state.commit_index].payload)
+                else:
+                    break
 
-            logging.info('========================================================================')
-            time.sleep(HEART_BEAT_INTERVAL)
-            self.entry = None
+        logging.info('========================================================================')
+
+        self.heartbeat_timer = threading.Timer(float(HEART_BEAT_INTERVAL), self.heartbeat)
+        self.heartbeat_timer.start()
 
     def become_leader(self):
         logging.info(f'{self} become leader and start to send heartbeat ... ')
@@ -167,10 +176,15 @@ class TimerThread(threading.Thread):
         # If leaderCommit > commitIndex, set commitIndex =
         # min(leaderCommit, index of last new entry)
         if append_entries.leader_commit > self.node_state.commit_index:
-            commit_index = min(append_entries.leader_commit, append_entries.entries.index)
+            if append_entries.entries:
+                commit_index = min(append_entries.leader_commit, append_entries.entries.index)
+            else:
+                commit_index = append_entries.leader_commit
             while self.node_state.commit_index < commit_index:
                 self.node_state.commit_index += 1
-                self.update_state(self.node_state.entries[self.node_state.commit_index].payload)
+                command = self.node_state.entries[self.node_state.commit_index].payload
+                command = Command(command[0], command[1])
+                self.update_state(command)
         self.become_follower()
         return success, self.node_state.current_term
 
