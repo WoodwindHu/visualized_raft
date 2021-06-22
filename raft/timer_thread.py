@@ -178,7 +178,7 @@ class TimerThread(threading.Thread):
         timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
         if type(self.node_state) != Follower:
             logging.info(f'{self} become follower ... ')
-            self.node_state = Follower(self.node)
+            self.node_state = Follower(self.node_state)
         logging.info(f'{self} reset election timer {timeout} s ... ')
         send_state_update(self.node_state, timeout)
         self.election_timer.cancel()
