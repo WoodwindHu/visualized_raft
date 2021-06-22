@@ -1,6 +1,6 @@
 import sys
 import threading
-from random import randrange
+from random import randrange, random
 import logging
 
 from .monitor import send_state_update
@@ -189,7 +189,7 @@ class TimerThread(threading.Thread):
         return success, self.node_state.current_term
 
     def become_follower(self):
-        timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
+        timeout = ELECTION_TIMEOUT_MAX // 2 + ELECTION_TIMEOUT_MAX // 2 * random()
         if type(self.node_state) != Follower:
             logging.info(f'{self} become follower ... ')
             self.node_state = Follower(self.node_state)
