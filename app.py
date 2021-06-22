@@ -30,7 +30,8 @@ def create_app():
 app = create_app()
 
 def json2AppendEntries(s):
-    entries = LogEntry(s['entries']['index'], s['entries']['term'], s['entries']['payload']) if s['entries'] != None else None
+    entries = LogEntry(s['entries']['index'], s['entries']['term'], s['entries']['payload']) \
+        if s['entries'] != None else None
     return AppendEntries(s['term'], s['leader_id'], s['prev_log_index'], s['prev_log_term'], entries,
                          s['leader_commit'])
 
