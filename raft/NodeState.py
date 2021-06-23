@@ -36,6 +36,7 @@ class NodeState:
     def vote(self, vote_request):
         term = vote_request['term']
         candidate_id = vote_request['candidate_id']
+        last_log_index = vote_request['last_log_index']
         if term > self.current_term:
             logging.info(f'{self} approves vote request since term: {term} > {self.current_term}')
             self.vote_for = candidate_id
@@ -45,8 +46,7 @@ class NodeState:
             logging.info(f'{self} rejects vote request since term: {term} < {self.current_term}')
             return VoteResult(False, self.current_term, self.id)
         # vote_request.term == self.current_term
-        if self.vote_for is None or self.vote_for == candidate_id:
-            # TODO check if the candidate's log is newer than receiver's
+        if (self.vote_for is None or self.vote_for == candidate_id) and self.last_applied_index <= last_log_index:
             self.vote_for = candidate_id
             return VoteResult(True, self.current_term, self.id)
         logging.info(f'{self} rejects vote request since vote_for: {self.vote_for} != {candidate_id}')
