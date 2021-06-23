@@ -17,7 +17,7 @@ class Follower(NodeState):
         # self.nextIndex = 0
         # index of highest log entry known to be replicated on server
         # self.matchIndex = 0
-        if entries == None:
+        if entries is None:
             self.entries = np.array([LogEntry(0,0,None) for i in range(101)])
         else:
             self.entries = entries
