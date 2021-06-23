@@ -193,7 +193,11 @@ class TimerThread(threading.Thread):
         self.election_timeout=timeout
         if type(self.node_state) != Follower:
             logging.info(f'{self} become follower ... ')
-            self.node_state = Follower(self.node)
+            self.node_state = Follower(self.node,
+                                       current_term=self.node_state.current_term,
+                                       commit_index=self.node_state.commit_index,
+                                       last_applied_index=self.node_state.last_applied_index,
+                                       entries=self.node_state.entries)
             self.node_state.leader = None
         logging.info(f'{self} reset election timer {timeout} s ... ')
         send_state_update(self.node_state, timeout)

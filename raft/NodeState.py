@@ -19,12 +19,12 @@ class VoteResult:
 
 
 class NodeState:
-    def __init__(self, node=None):
+    def __init__(self, node=None, current_term=0):
         self.cluster = Cluster()
         self.node = node
 
         self.id = node.id
-        self.current_term = 0
+        self.current_term = current_term
 
         self.vote_for = None  # node.id of the voted candidate
 
