@@ -21,6 +21,7 @@ from .client import Client
 import grequests
 import json
 from .command import Command
+import os
 cluster = Cluster()
 
 
@@ -33,6 +34,7 @@ class TimerThread(threading.Thread):
         self.election_timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
         self.election_timer = threading.Timer(self.election_timeout, self.become_candidate)
         self.heartbeat_timer = None
+        logging.info('{}'.format(os.getpid()))
 
     def receive_client_command(self, command: Command):
         logging.info(f'{self} got command: {json.dumps(command)}')
@@ -54,11 +56,12 @@ class TimerThread(threading.Thread):
         elif command.command == 'add':
             self.state += command.num
         logging.info(f'{self} update state: {self.state}')
+        send_state_update(self.node_state, self.election_timeout, self.state)
 
     def heartbeat(self):
         logging.info(f'{self} send heartbeat to followers')
         logging.info('========================================================================')
-        send_heartbeat(self.node_state, HEART_BEAT_INTERVAL)
+        send_heartbeat(self.node_state, HEART_BEAT_INTERVAL, self.state)
         client = Client()
         with client as session:
             posts = []
@@ -122,17 +125,17 @@ class TimerThread(threading.Thread):
 
     def become_leader(self):
         logging.info(f'{self} become leader and start to send heartbeat ... ')
-        send_state_update(self.node_state, self.election_timeout)
         self.election_timer.cancel()
         self.node_state = Leader(self.node_state)
+        send_state_update(self.node_state, self.election_timeout, self.state)
         self.heartbeat()
 
     def become_candidate(self):
         logging.warning(f'heartbeat is timeout: {self.election_timeout} s')
         logging.info(f'{self} become candidate and start to request vote ... ')
-        send_state_update(self.node_state, self.election_timeout)
         self.election_timer.cancel()
         self.node_state = Candidate(self.node_state)
+        send_state_update(self.node_state, self.election_timeout, self.state)
         self.node_state.elect()
         if self.node_state.win():
             self.become_leader()
@@ -203,7 +206,7 @@ class TimerThread(threading.Thread):
                                        entries=self.node_state.entries)
             self.node_state.leader = None
         logging.info(f'{self} reset election timer {timeout} s ... ')
-        send_state_update(self.node_state, timeout)
+        send_state_update(self.node_state, timeout, self.state)
         self.election_timer.cancel()
         self.election_timer = threading.Timer(timeout, self.become_candidate)
         self.election_timer.start()

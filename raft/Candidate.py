@@ -43,7 +43,7 @@ class Candidate(NodeState):
 
     def __init__(self, follower):
         super(Candidate, self).__init__(follower.node)
-        self.current_term = follower.current_term
+        self.current_term = follower.current_term + 1
         self.commit_index = follower.commit_index
         self.last_applied_index = follower.last_applied_index
         self.votes = []
@@ -58,7 +58,6 @@ class Candidate(NodeState):
             3. send the vote request (VR) to each peer in parallel
             4. return when it is timeout
         """
-        self.current_term = self.current_term + 1
         logging.info(f'{self} sends vote request to peers ')
         # vote itself
         self.votes.append(self.node)
@@ -68,7 +67,8 @@ class Candidate(NodeState):
             # VoteRequest(self)
             for peer in self.followers:
                 logging.info(f'{self} sends request to {peer}')
-                posts.append(grequests.post(f'http://{peer.uri}/raft/vote', json=VoteRequest(self).to_json(), session=session))
+                posts.append(grequests.post(f'http://{peer.uri}/raft/vote',
+                                            json=VoteRequest(self).to_json(), session=session, timeout=1.0))
             for response in grequests.imap(posts):
                 logging.info(f'{self} got vote result: {response.status_code}: {response.json()}')
                 result = response.json()
