@@ -123,6 +123,7 @@ class TimerThread(threading.Thread):
     def become_leader(self):
         logging.info(f'{self} become leader and start to send heartbeat ... ')
         send_state_update(self.node_state, self.election_timeout)
+        self.election_timer.cancel()
         self.node_state = Leader(self.node_state)
         self.heartbeat()
 
@@ -130,6 +131,7 @@ class TimerThread(threading.Thread):
         logging.warning(f'heartbeat is timeout: {self.election_timeout} s')
         logging.info(f'{self} become candidate and start to request vote ... ')
         send_state_update(self.node_state, self.election_timeout)
+        self.election_timer.cancel()
         self.node_state = Candidate(self.node_state)
         self.node_state.elect()
         if self.node_state.win():
@@ -143,11 +145,11 @@ class TimerThread(threading.Thread):
     #   1. return false if candidate.term < current_term
     #   2. return true if (voteFor is None or voteFor==candidate.id) and candidate's log is newer than receiver's
     def vote(self, vote_request: VoteRequest):
-        logging.info(f'{self} got vote request: {vote_request} ')
+        logging.info(f'{self} got vote request: {vote_request.to_json()} ')
         vote_result = self.node_state.vote(vote_request)
         if vote_result.vote_granted:
             self.become_follower()
-        logging.info(f'{self} return vote result: {vote_result} ')
+        logging.info(f'{self} return vote result: {vote_result.to_json()} ')
         return vote_result
 
     def append_entries_reponse(self, append_entries: AppendEntries):

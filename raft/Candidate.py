@@ -9,11 +9,19 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='
 
 
 class VoteRequest:
-    def __init__(self, candidate):
-        self.candidate_id = candidate.id
-        self.term = candidate.current_term
-        self.last_log_index = candidate.last_applied_index
-        self.last_log_term = candidate.entries[candidate.last_applied_index].term
+    def __init__(self, *args):
+        if len(args) == 1:
+            candidate = args[0]
+            self.candidate_id = candidate.id
+            self.term = candidate.current_term
+            self.last_log_index = candidate.last_applied_index
+            self.last_log_term = candidate.entries[candidate.last_applied_index].term
+        else:
+            self.candidate_id = args[0]
+            self.term = args[1]
+            self.last_log_index = args[2]
+            self.last_log_term = args[3]
+
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,

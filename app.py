@@ -12,6 +12,7 @@ from raft.timer_thread import TimerThread
 from raft.AppendEntries import AppendEntries
 from raft.LogEntry import LogEntry
 from raft.command import Command
+from raft.Candidate import VoteRequest
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -39,11 +40,15 @@ def json2Command(s):
     command = Command(s[0], s[1])
     return command
 
+def json2VoteRequest(s):
+    vr = VoteRequest(s['candidate_id'], s['term'], s['last_log_index'], s['last_log_term'])
+    return vr
+
 
 @app.route('/raft/vote', methods=['POST'])
 def request_vote():
     vote_request = request.get_json()
-    result = timer_thread.vote(json.loads(vote_request))
+    result = timer_thread.vote(json2VoteRequest(json.loads(vote_request)))
     return result.to_json()
 
 

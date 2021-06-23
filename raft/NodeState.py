@@ -34,9 +34,9 @@ class NodeState:
     #   1. return false if candidate.term < current_term
     #   2. return true if (voteFor is None or voteFor==candidate.id) and candidate's log is newer than receiver's
     def vote(self, vote_request):
-        term = vote_request['term']
-        candidate_id = vote_request['candidate_id']
-        last_log_index = vote_request['last_log_index']
+        term = vote_request.term
+        candidate_id = vote_request.candidate_id
+        last_log_index = vote_request.last_log_index
         if term > self.current_term:
             logging.info(f'{self} approves vote request since term: {term} > {self.current_term}')
             self.vote_for = candidate_id
