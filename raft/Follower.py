@@ -18,7 +18,7 @@ class Follower(NodeState):
         # self.matchIndex = 0
         self.entries = np.array([LogEntry(0,0,None) for i in range(101)])
 
-    def __int__(self, nodestate: NodeState):
+    def __init__(self, nodestate: NodeState):
         super(Follower, self).__init__(nodestate.node)
         self.leader = None
         self.commit_index = nodestate.commit_index
