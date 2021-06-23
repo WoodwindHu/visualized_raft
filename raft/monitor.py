@@ -17,7 +17,7 @@ class TimeUnit(Enum):
 
 def send_state_update(node_state: NodeState, election_timeout, time_unit=TimeUnit.SECOND):
     client = Client()
-    timeout = int(election_timeout)
+    timeout = election_timeout
     if time_unit == TimeUnit.SECOND:
         timeout = timeout * 1000
     state = {

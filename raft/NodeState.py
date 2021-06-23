@@ -6,7 +6,7 @@ import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
-VoteResult = collections.namedtuple('VoteResult', ['term', 'vote_granted', 'id'])
+VoteResult = collections.namedtuple('VoteResult', ['vote_granted', 'term', 'id'])
 
 
 class NodeState:

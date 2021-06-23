@@ -127,7 +127,7 @@ class TimerThread(threading.Thread):
         self.heartbeat()
 
     def become_candidate(self):
-        logging.warning(f'heartbeat is timeout: {int(self.election_timeout)} s')
+        logging.warning(f'heartbeat is timeout: {self.election_timeout} s')
         logging.info(f'{self} become candidate and start to request vote ... ')
         send_state_update(self.node_state, self.election_timeout)
         self.node_state = Candidate(self.node_state)
@@ -190,9 +190,10 @@ class TimerThread(threading.Thread):
 
     def become_follower(self):
         timeout = ELECTION_TIMEOUT_MAX // 2 + ELECTION_TIMEOUT_MAX // 2 * random()
+        self.election_timeout=timeout
         if type(self.node_state) != Follower:
             logging.info(f'{self} become follower ... ')
-            self.node_state = Follower(self.node_state)
+            self.node_state = Follower(self.node)
             self.node_state.leader = None
         logging.info(f'{self} reset election timer {timeout} s ... ')
         send_state_update(self.node_state, timeout)
