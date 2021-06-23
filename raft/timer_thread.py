@@ -145,7 +145,7 @@ class TimerThread(threading.Thread):
     def vote(self, vote_request: VoteRequest):
         logging.info(f'{self} got vote request: {vote_request} ')
         vote_result = self.node_state.vote(vote_request)
-        if vote_result[0]:
+        if vote_result.vote_granted:
             self.become_follower()
         logging.info(f'{self} return vote result: {vote_result} ')
         return vote_result

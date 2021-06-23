@@ -44,7 +44,7 @@ def json2Command(s):
 def request_vote():
     vote_request = request.get_json()
     result = timer_thread.vote(json.loads(vote_request))
-    return jsonify(result)
+    return result.to_json()
 
 
 @app.route('/raft/heartbeat', methods=['POST'])

@@ -3,10 +3,19 @@ import collections
 from .cluster import Cluster
 from .LogEntry import LogEntry
 import logging
+import json
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
-VoteResult = collections.namedtuple('VoteResult', ['vote_granted', 'term', 'id'])
+class VoteResult:
+    def __init__(self, vote_granted, term, id):
+        self.vote_granted = vote_granted
+        self.term = term
+        self.id = id
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 
 class NodeState:
