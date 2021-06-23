@@ -193,6 +193,7 @@ class TimerThread(threading.Thread):
         if type(self.node_state) != Follower:
             logging.info(f'{self} become follower ... ')
             self.node_state = Follower(self.node_state)
+            self.node_state.leader = None
         logging.info(f'{self} reset election timer {timeout} s ... ')
         send_state_update(self.node_state, timeout)
         self.election_timer.cancel()
