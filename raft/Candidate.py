@@ -41,7 +41,7 @@ class Candidate(NodeState):
         self.last_applied_index = follower.last_applied_index
         self.votes = []
         self.entries = follower.entries
-        self.followers = [peer for peer in self.cluster if peer != self.node]
+        self.followers = [peer for peer in self.cluster if peer.id != self.node.id]
         self.vote_for = self.id  # candidate always votes itself
 
     def elect(self):
