@@ -22,7 +22,7 @@ class Leader(NodeState):
         self.last_applied_index = candidate.last_applied_index
         self.entries = candidate.entries
         self.stopped = False
-        self.followers = [peer for peer in self.cluster if peer != self.node]
+        self.followers = [peer for peer in self.cluster if peer.id != self.node.id]
         self.election_timeout = float(randrange(ELECTION_TIMEOUT_MAX / 2, ELECTION_TIMEOUT_MAX))
         self.next_index = [self.last_applied_index+1 for i in range(len(self.cluster))]
         self.match_index = [0 for i in range(len(self.cluster))]
