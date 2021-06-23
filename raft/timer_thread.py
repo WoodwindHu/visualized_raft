@@ -182,7 +182,8 @@ class TimerThread(threading.Thread):
                 commit_index = min(append_entries.leader_commit, append_entries.entries.index)
             else:
                 commit_index = append_entries.leader_commit
-            while self.node_state.commit_index < commit_index:
+            while self.node_state.commit_index < commit_index and \
+                    self.node_state.entries[self.node_state.commit_index + 1].payload is not None:
                 self.node_state.commit_index += 1
                 command = self.node_state.entries[self.node_state.commit_index].payload
                 command = Command(command[0], command[1])
