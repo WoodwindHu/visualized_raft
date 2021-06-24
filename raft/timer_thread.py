@@ -45,6 +45,7 @@ class TimerThread(threading.Thread):
                                                 self.node_state.current_term, command)
         self.node_state.match_index[self.node.id] = self.node_state.last_applied_index
         self.node_state.next_index[self.node.id] = self.node_state.match_index[self.node.id] + 1
+        send_state_update(self.node_state, 0, self.state)
         # self.heartbeat_timer.cancel()
         # self.heartbeat_timer = threading.Timer(float(HEART_BEAT_INTERVAL), self.heartbeat)
         # self.heartbeat_timer.start()
