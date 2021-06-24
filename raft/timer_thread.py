@@ -79,7 +79,7 @@ class TimerThread(threading.Thread):
                 posts.append(grequests.post(f'http://{peer.uri}/raft/heartbeat',
                                json=json.dumps(log_entry, default=lambda obj: obj.__dict__,
                                                sort_keys=True, indent=4),
-                               session=session))
+                               session=session, timeout=1.0))
 
             for response in grequests.map(posts, gtimeout=HEART_BEAT_INTERVAL):
                 if response is not None:
@@ -167,7 +167,7 @@ class TimerThread(threading.Thread):
         if append_entries.prev_log_index > 0 and self.node_state.entries[
             append_entries.prev_log_index].term != append_entries.prev_log_term:
             success = False
-        if append_entries.entries != None:
+        if append_entries.entries is not None:
             # If an existing entry conflicts with a new one (same index
             # but different terms), delete the existing entry and all that
             # follow it
@@ -178,6 +178,7 @@ class TimerThread(threading.Thread):
             self.node_state.last_applied_index = append_entries.entries.index
             # Append any new entries not already in the log
             self.node_state.entries[append_entries.entries.index] = append_entries.entries
+            send_state_update(self.node_state, 0, self.state)
         # If leaderCommit > commitIndex, set commitIndex =
         # min(leaderCommit, index of last new entry)
         if append_entries.leader_commit > self.node_state.commit_index:
@@ -186,7 +187,7 @@ class TimerThread(threading.Thread):
             else:
                 commit_index = append_entries.leader_commit
             while self.node_state.commit_index < commit_index and \
-                    self.node_state.entries[self.node_state.commit_index + 1].payload is not None:
+                    self.node_state.commit_index < self.node_state.last_applied_index:
                 self.node_state.commit_index += 1
                 command = self.node_state.entries[self.node_state.commit_index].payload
                 command = Command(command[0], command[1])

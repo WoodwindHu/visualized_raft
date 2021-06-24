@@ -28,12 +28,13 @@ def send_state_update(node_state: NodeState, election_timeout, value, time_unit=
         "term": node_state.current_term,
         "state": type(node_state).__name__.lower(),
         "value": value,
-        "timeout": timeout
+        "index": node_state.last_applied_index,
+        "commit": node_state.commit_index
     }
     try:
         with client as session:
             logging.info(f'send state update to monitor: {state}')
-            posts = [grequests.post(MONITOR_URL_STATE_UPDATE, json=state, session=session)]
+            posts = [grequests.post(MONITOR_URL_STATE_UPDATE, json=state, session=session, timeout=1.0)]
             for response in grequests.imap(posts):
                 result = response.json()
                 logging.info(f'get response from monitor: {result}')
@@ -57,7 +58,7 @@ def send_heartbeat(node_state: NodeState, election_timeout, value, time_unit=Tim
     try:
         with client as session:
             logging.info(f'send heartbeat to monitor: {state}')
-            posts = [grequests.post(MONITOR_URL_HEARTBEAT, json=state, session=session)]
+            posts = [grequests.post(MONITOR_URL_HEARTBEAT, json=state, session=session, timeout=1.0)]
             for response in grequests.imap(posts):
                 result = response.json()
                 logging.info(f'get response from monitor: {result}')

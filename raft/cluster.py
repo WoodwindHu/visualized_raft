@@ -2,7 +2,7 @@ import collections
 
 Node = collections.namedtuple('Node', ['id', 'uri'])
 CLUSTER_SIZE = 5
-ELECTION_TIMEOUT_MAX = 10
+ELECTION_TIMEOUT_MAX = 26
 HEART_BEAT_INTERVAL = float(ELECTION_TIMEOUT_MAX/5)
 
 
